@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Village Tenders — The Hearth</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EFE7D8;
+    --surface: #FBF7EE;
+    --surface-2: #FFFFFF;
+    --ink: #2A1F18;
+    --ink-soft: #786E63;
+    --ink-faint: #A89E91;
+    --line: #E2D7C2;
+    --line-soft: #EDE5D3;
+    --terracotta: #C97D60;
+    --terracotta-soft: #E8C8B8;
+    --sage: #7A8B6F;
+    --sage-soft: #C8D2BD;
+    --gold: #B8924C;
+    --gold-soft: #E5D3A8;
+    --rust: #A65A3D;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: #DDD3C0;
+    color: var(--ink);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'ss01';
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  body { padding: 36px 20px 80px; }
+
+  /* Browser frame */
+  .browser {
+    max-width: 1280px;
+    margin: 0 auto;
+    background: var(--bg);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(42,31,24,0.18), 0 4px 12px rgba(42,31,24,0.06);
+    overflow: hidden;
+  }
+  .browser-bar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 18px;
+    background: #E5DCC8;
+    border-bottom: 1px solid var(--line);
+  }
+  .lights { display: flex; gap: 7px; }
+  .light { width: 11px; height: 11px; border-radius: 50%; }
+  .light.r { background: #E27D6A; }
+  .light.y { background: #E5C36A; }
+  .light.g { background: #8BB082; }
+  .url {
+    flex: 1;
+    background: var(--surface);
+    border-radius: 7px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    font-family: 'Inter', monospace;
+    border: 1px solid var(--line);
+  }
+  .url::before {
+    content: '🔒  ';
+    opacity: 0.5;
+  }
+
+  /* App chrome */
+  .app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--terracotta) 0%, var(--gold) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--surface);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .nav {
+    display: flex; gap: 28px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--ink-soft);
+    padding: 6px 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .nav a.active {
+    color: var(--ink);
+    border-bottom-color: var(--terracotta);
+  }
+  .nav a:hover { color: var(--ink); }
+  .avatar {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--sage);
+    color: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* Page */
+  .page { padding: 36px 32px 48px; }
+  .page-head { margin-bottom: 36px; }
+  .page-head h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 42px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .page-head .meta {
+    margin-top: 8px;
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    display: flex; gap: 14px; align-items: center;
+  }
+  .meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink-faint); }
+  .greeting { font-style: italic; color: var(--ink-soft); }
+
+  /* Section */
+  .section { margin-bottom: 28px; }
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 12px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px 22px;
+    transition: all 0.2s;
+  }
+  .card.surface-2 { background: var(--surface-2); }
+
+  /* Hero row */
+  .hero-row {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+  .hero-card {
+    background: linear-gradient(135deg, #F4E6D0 0%, #ECD9BA 100%);
+    border: 1px solid var(--gold-soft);
+    border-radius: 14px;
+    padding: 28px 30px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-card::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(184, 146, 76, 0.12);
+  }
+  .hero-card .label {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rust);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .hero-card h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .hero-card .actions {
+    display: flex; gap: 10px;
+    position: relative;
+  }
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  .btn-primary:hover { background: var(--rust); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink);
+    border: 1px solid var(--ink);
+  }
+  .btn-ghost:hover { background: var(--ink); color: var(--surface); }
+
+  .sessions-card .label {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .session {
+    display: flex; align-items: center; gap: 14px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .session:last-child { border-bottom: none; padding-bottom: 0; }
+  .session-time {
+    font-family: 'Fraunces', serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--terracotta);
+    width: 56px;
+    flex-shrink: 0;
+  }
+  .session-name { font-size: 14px; font-weight: 500; }
+  .session-type { font-size: 12px; color: var(--ink-soft); }
+
+  /* Metric strip */
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .metric {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .metric .label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .metric .value {
+    font-family: 'Fraunces', serif;
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .metric .sub {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .delta {
+    font-weight: 500;
+    color: var(--sage);
+  }
+  .delta.down { color: var(--rust); }
+
+  /* Progress bar */
+  .progress {
+    margin-top: 12px;
+    height: 6px;
+    background: var(--line-soft);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--terracotta) 0%, var(--gold) 100%);
+    border-radius: 3px;
+  }
+
+  /* Two-col */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+
+  /* Inbox */
+  .inbox-list { margin-top: 4px; }
+  .inbox-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .inbox-row:last-child { border-bottom: none; }
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+  .badge-app { background: var(--terracotta-soft); color: var(--rust); }
+  .badge-dm { background: var(--sage-soft); color: var(--sage); }
+  .badge-form { background: var(--gold-soft); color: var(--gold); }
+  .badge-quiz { background: #E0DDF1; color: #6E6896; }
+  .inbox-text { font-size: 13.5px; flex: 1; }
+  .inbox-text strong { font-weight: 500; }
+  .inbox-time { font-size: 11.5px; color: var(--ink-faint); flex-shrink: 0; }
+
+  /* Content/Compose */
+  .compose-card { display: flex; flex-direction: column; }
+  .compose-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 16px;
+  }
+  .compose-btn {
+    background: var(--ink);
+    color: var(--surface);
+    border: none;
+    border-radius: 7px;
+    padding: 9px 14px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: inherit;
+  }
+  .compose-btn:hover { background: var(--rust); }
+  .schedule-list { flex: 1; }
+  .schedule-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .schedule-row:last-child { border-bottom: none; }
+  .schedule-day {
+    font-family: 'Fraunces', serif;
+    font-size: 13px;
+    color: var(--terracotta);
+    font-weight: 500;
+    width: 42px;
+    flex-shrink: 0;
+  }
+  .schedule-time {
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    width: 50px;
+    flex-shrink: 0;
+  }
+  .schedule-title {
+    font-size: 13.5px;
+    flex: 1;
+  }
+  .platforms { display: flex; gap: 4px; flex-shrink: 0; }
+  .platform-pill {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: var(--line-soft);
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* Performance */
+  .perf-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .perf {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 18px 20px;
+  }
+  .perf-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 10px;
+  }
+  .perf-label {
+    font-size: 11px; letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 500;
+  }
+  .perf-value {
+    font-family: 'Fraunces', serif;
+    font-size: 22px; font-weight: 400;
+    letter-spacing: -0.01em;
+  }
+  .perf-bench {
+    margin-top: 10px;
+    font-size: 11.5px;
+    color: var(--ink-soft);
+  }
+
+  /* Pipeline */
+  .pipeline-card { padding: 8px 0; }
+  .pipe-head {
+    padding: 12px 22px 14px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .pipe-head h3 {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .pipe-filter {
+    font-size: 12px;
+    color: var(--ink-soft);
+    display: flex; gap: 14px;
+  }
+  .pipe-filter a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .pipe-filter a.active { color: var(--ink); font-weight: 500; }
+  .pipe-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1.2fr 1fr 0.8fr 0.8fr;
+    align-items: center;
+    padding: 14px 22px;
+    border-top: 1px solid var(--line-soft);
+    font-size: 13.5px;
+  }
+  .pipe-row:hover { background: rgba(201,125,96,0.04); }
+  .pipe-name { font-weight: 500; }
+  .pipe-stage { color: var(--ink-soft); }
+  .pipe-status {
+    font-size: 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    background: var(--line-soft);
+    color: var(--ink-soft);
+    font-weight: 500;
+    width: fit-content;
+  }
+  .pipe-status.warm { background: var(--terracotta-soft); color: var(--rust); }
+  .pipe-status.confirmed { background: var(--sage-soft); color: var(--sage); }
+  .pipe-status.alumna { background: var(--gold-soft); color: var(--gold); }
+  .pipe-status.new { background: #E0DDF1; color: #6E6896; }
+  .pipe-time { font-size: 12px; color: var(--ink-faint); }
+  .pipe-action {
+    color: var(--ink);
+    font-size: 12.5px;
+    text-decoration: none;
+    font-weight: 500;
+    border: 1px solid var(--line);
+    padding: 6px 11px;
+    border-radius: 6px;
+    background: var(--surface-2);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+  }
+  .pipe-action:hover {
+    background: var(--ink);
+    color: var(--surface);
+    border-color: var(--ink);
+  }
+  .pipe-action.done {
+    border: none;
+    background: transparent;
+    color: var(--sage);
+    cursor: default;
+  }
+  .pipe-action.done:hover {
+    background: transparent;
+    color: var(--sage);
+  }
+
+  /* Sparkline */
+  .spark {
+    display: block;
+    margin-top: 6px;
+  }
+
+  /* Footer */
+  .foot {
+    text-align: center;
+    margin-top: 32px;
+    font-size: 11.5px;
+    color: var(--ink-faint);
+    letter-spacing: 0.04em;
+  }
+  .foot .pulse {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--sage);
+    margin-right: 7px;
+    vertical-align: middle;
+    animation: pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  .label-note {
+    text-align: center;
+    margin: 0 auto 28px;
+    max-width: 1280px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(42,31,24,0.5);
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<div class="label-note">A designed mockup of what Village Tenders' Hearth will look like — sample data shown.</div>
+
+<div class="browser">
+
+  <!-- Browser bar -->
+  <div class="browser-bar">
+    <div class="lights">
+      <div class="light r"></div>
+      <div class="light y"></div>
+      <div class="light g"></div>
+    </div>
+    <div class="url">villagetenders.com/hearth</div>
+  </div>
+
+  <!-- App header -->
+  <div class="app-header">
+    <div class="brand">
+      <div class="brand-mark">v</div>
+      <span>Village Tenders</span>
+    </div>
+    <nav class="nav">
+      <a class="active">The Hearth</a>
+      <a>Posts</a>
+      <a>Inbox</a>
+      <a>Retreats</a>
+      <a>Library</a>
+      <a>Settings</a>
+    </nav>
+    <div class="avatar">VT</div>
+  </div>
+
+  <!-- Page -->
+  <div class="page">
+
+    <div class="page-head">
+      <h1>Good morning.</h1>
+      <div class="meta">
+        <span>Sunday, April 26</span>
+        <span class="dot"></span>
+        <span>4:47 pm</span>
+        <span class="dot"></span>
+        <span class="greeting">Eight days until the Ojai retreat opens</span>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero-row">
+      <div class="hero-card">
+        <div class="label">Today's one thing</div>
+        <h2>Review Maya R.'s retreat application — she's been waiting three days, and her words are tender.</h2>
+        <div class="actions">
+          <a class="btn btn-primary">Open application →</a>
+          <a class="btn btn-ghost">Snooze for tomorrow</a>
+        </div>
+      </div>
+
+      <div class="card sessions-card">
+        <div class="label">Today's sessions <span style="color: var(--ink-soft); font-weight: 400; letter-spacing: normal; text-transform: none;">3 booked</span></div>
+        <div class="session">
+          <div class="session-time">10:00a</div>
+          <div>
+            <div class="session-name">Sarah K.</div>
+            <div class="session-type">1:1 Container · 60 min</div>
+          </div>
+        </div>
+        <div class="session">
+          <div class="session-time">2:00p</div>
+          <div>
+            <div class="session-name">Jenna M.</div>
+            <div class="session-type">Discovery call · 30 min</div>
+          </div>
+        </div>
+        <div class="session">
+          <div class="session-time">4:30p</div>
+          <div>
+            <div class="session-name">Lucia P.</div>
+            <div class="session-type">1:1 Container · 60 min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metrics -->
+    <div class="section-label">Your numbers</div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="label">Revenue this month</div>
+        <div class="value">$4,200</div>
+        <div class="sub"><span class="delta">↑ 18%</span> vs. last month · $5,000 goal</div>
+        <div class="progress"><div class="progress-bar" style="width: 84%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="label">October retreat fill</div>
+        <div class="value">5 <span style="color: var(--ink-faint); font-size: 22px;">/ 8</span></div>
+        <div class="sub">3 spots left · closes Sept 15</div>
+        <div class="progress"><div class="progress-bar" style="width: 62.5%"></div></div>
+      </div>
+      <div class="metric">
+        <div class="label">The Circle</div>
+        <div class="value">1,247</div>
+        <div class="sub"><span class="delta">↑ 47</span> this week · 38% open rate</div>
+      </div>
+      <div class="metric">
+        <div class="label">Followers (across 5)</div>
+        <div class="value">8,463</div>
+        <div class="sub"><span class="delta">↑ 124</span> this week · IG leads</div>
+      </div>
+    </div>
+
+    <!-- Two col -->
+    <div class="two-col">
+
+      <div class="card">
+        <div class="section-label" style="margin-bottom: 4px;">Inbox · 7 unread</div>
+        <div class="inbox-list">
+          <div class="inbox-row">
+            <div class="badge badge-app">apply</div>
+            <div class="inbox-text"><strong>Maya R.</strong> applied for the Ojai retreat</div>
+            <div class="inbox-time">3d</div>
+          </div>
+          <div class="inbox-row">
+            <div class="badge badge-app">apply</div>
+            <div class="inbox-text"><strong>Naomi T.</strong> applied for the Ojai retreat</div>
+            <div class="inbox-time">9h</div>
+          </div>
+          <div class="inbox-row">
+            <div class="badge badge-dm">dm · ig</div>
+            <div class="inbox-text"><strong>@quietmornings</strong> — "Is the November retreat open yet?"</div>
+            <div class="inbox-time">4h</div>
+          </div>
+          <div class="inbox-row">
+            <div class="badge badge-dm">dm · ig</div>
+            <div class="inbox-text"><strong>@willowandsoft</strong> — "Loved your last note. Sending it to my sister."</div>
+            <div class="inbox-time">6h</div>
+          </div>
+          <div class="inbox-row">
+            <div class="badge badge-quiz">quiz</div>
+            <div class="inbox-text"><strong>Maya M.</strong> finished the quiz · primary: rest</div>
+            <div class="inbox-time">2h</div>
+          </div>
+          <div class="inbox-row">
+            <div class="badge badge-form">1:1</div>
+            <div class="inbox-text"><strong>David W.</strong> — inquiry from /reach-out</div>
+            <div class="inbox-time">2h</div>
+          </div>
+          <div class="inbox-row">
+            <div class="badge badge-dm">comment</div>
+            <div class="inbox-text"><strong>@grace.softens</strong> commented on your reel about pacing</div>
+            <div class="inbox-time">11h</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card compose-card">
+        <div class="compose-head">
+          <div class="section-label" style="margin-bottom: 0;">Content · this week</div>
+          <button class="compose-btn">+ New post</button>
+        </div>
+        <div class="schedule-list">
+          <div class="schedule-row">
+            <div class="schedule-day">Tue</div>
+            <div class="schedule-time">9:00a</div>
+            <div class="schedule-title">Ojai retreat reveal — carousel</div>
+            <div class="platforms">
+              <span class="platform-pill">IG</span>
+              <span class="platform-pill">FB</span>
+            </div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-day">Wed</div>
+            <div class="schedule-time">8:00a</div>
+            <div class="schedule-title">Newsletter — "On softening into the in-between"</div>
+            <div class="platforms">
+              <span class="platform-pill">EMAIL</span>
+            </div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-day">Thu</div>
+            <div class="schedule-time">7:00p</div>
+            <div class="schedule-title">Behind-the-scenes — kitchen prep</div>
+            <div class="platforms">
+              <span class="platform-pill">IG</span>
+              <span class="platform-pill">TT</span>
+            </div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-day">Fri</div>
+            <div class="schedule-time">12:00p</div>
+            <div class="schedule-title">Pin — "5 morning rituals for women who give too much"</div>
+            <div class="platforms">
+              <span class="platform-pill">PIN</span>
+            </div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-day">Sat</div>
+            <div class="schedule-time">7:00p</div>
+            <div class="schedule-title">LinkedIn essay — "The economics of slowness"</div>
+            <div class="platforms">
+              <span class="platform-pill">LI</span>
+              <span class="platform-pill">TH</span>
+            </div>
+          </div>
+          <div class="schedule-row">
+            <div class="schedule-day">Sun</div>
+            <div class="schedule-time">7:00a</div>
+            <div class="schedule-title">Journal — "Why I rebuilt the village"</div>
+            <div class="platforms">
+              <span class="platform-pill">SITE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Performance -->
+    <div class="section-label">This week</div>
+    <div class="perf-row">
+      <div class="perf">
+        <div class="perf-head">
+          <span class="perf-label">Website</span>
+          <span class="perf-value">1,847</span>
+        </div>
+        <svg class="spark" viewBox="0 0 280 40" width="100%" height="40" preserveAspectRatio="none">
+          <polyline fill="none" stroke="#C97D60" stroke-width="2" points="0,28 28,24 56,30 84,18 112,22 140,12 168,16 196,8 224,14 252,6 280,10" />
+          <polyline fill="rgba(201,125,96,0.1)" stroke="none" points="0,28 28,24 56,30 84,18 112,22 140,12 168,16 196,8 224,14 252,6 280,10 280,40 0,40" />
+        </svg>
+        <div class="perf-bench">visitors · <span class="delta">↑ 22%</span> vs. last week · top page: /retreats/ojai</div>
+      </div>
+      <div class="perf">
+        <div class="perf-head">
+          <span class="perf-label">Email</span>
+          <span class="perf-value">38%</span>
+        </div>
+        <svg class="spark" viewBox="0 0 280 40" width="100%" height="40" preserveAspectRatio="none">
+          <polyline fill="none" stroke="#7A8B6F" stroke-width="2" points="0,22 35,18 70,24 105,16 140,12 175,14 210,10 245,8 280,6" />
+          <polyline fill="rgba(122,139,111,0.1)" stroke="none" points="0,22 35,18 70,24 105,16 140,12 175,14 210,10 245,8 280,6 280,40 0,40" />
+        </svg>
+        <div class="perf-bench">open rate · benchmark 32% · last note: 41% open</div>
+      </div>
+      <div class="perf">
+        <div class="perf-head">
+          <span class="perf-label">Social</span>
+          <span class="perf-value">4.2%</span>
+        </div>
+        <svg class="spark" viewBox="0 0 280 40" width="100%" height="40" preserveAspectRatio="none">
+          <polyline fill="none" stroke="#B8924C" stroke-width="2" points="0,30 28,32 56,26 84,28 112,20 140,22 168,18 196,12 224,14 252,8 280,6" />
+          <polyline fill="rgba(184,146,76,0.1)" stroke="none" points="0,30 32,32 56,26 84,28 112,20 140,22 168,18 196,12 224,14 252,8 280,6 280,40 0,40" />
+        </svg>
+        <div class="perf-bench">engagement · benchmark 1.9% · best: Tue carousel · 12.4k</div>
+      </div>
+    </div>
+
+    <!-- Pipeline -->
+    <div class="card pipeline-card">
+      <div class="pipe-head">
+        <h3>The pipeline</h3>
+        <div class="pipe-filter">
+          <a class="active">All</a>
+          <a>Applicants</a>
+          <a>Confirmed</a>
+          <a>Alumnae</a>
+          <a>1:1</a>
+        </div>
+      </div>
+
+      <div class="pipe-row">
+        <div class="pipe-name">Maya R.</div>
+        <div class="pipe-stage">Application · Ojai retreat</div>
+        <div><span class="pipe-status warm">awaiting your review</span></div>
+        <div class="pipe-time">3 days ago</div>
+        <a class="pipe-action">Review</a>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-name">Naomi T.</div>
+        <div class="pipe-stage">Application · Ojai retreat</div>
+        <div><span class="pipe-status warm">awaiting your review</span></div>
+        <div class="pipe-time">9 hours ago</div>
+        <a class="pipe-action">Review</a>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-name">Sarah K.</div>
+        <div class="pipe-stage">Invited to deposit · Ojai</div>
+        <div><span class="pipe-status">link sent</span></div>
+        <div class="pipe-time">1 day ago</div>
+        <a class="pipe-action">Send reminder</a>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-name">Lucia P.</div>
+        <div class="pipe-stage">Confirmed · Ojai retreat</div>
+        <div><span class="pipe-status confirmed">deposit paid · Oct 18</span></div>
+        <div class="pipe-time">5 days ago</div>
+        <a class="pipe-action done">welcome ✓</a>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-name">Imani O.</div>
+        <div class="pipe-stage">Confirmed · Ojai retreat</div>
+        <div><span class="pipe-status confirmed">deposit paid · Oct 14</span></div>
+        <div class="pipe-time">9 days ago</div>
+        <a class="pipe-action done">welcome ✓</a>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-name">Naomi G.</div>
+        <div class="pipe-stage">Alumna · Joshua Tree '26</div>
+        <div><span class="pipe-status alumna">14 days post-retreat</span></div>
+        <div class="pipe-time">14 days ago</div>
+        <a class="pipe-action">Request testimonial</a>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-name">David W.</div>
+        <div class="pipe-stage">1:1 inquiry · /reach-out</div>
+        <div><span class="pipe-status new">new</span></div>
+        <div class="pipe-time">2 hours ago</div>
+        <a class="pipe-action">Reply</a>
+      </div>
+
+    </div>
+
+    <div class="foot">
+      <span class="pulse"></span>Synced just now · pulling from Stripe, Resend, Google Calendar, Plausible, and 5 social platforms
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
